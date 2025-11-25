@@ -45,11 +45,13 @@ class MaxPoolingLayer:
 
         return dE_dX
     
+    
 class ConvolutionLayer:
-    def __init__(self, filterSize, numFilters):
+    def __init__(self, filterSize, numFilters, lr):
         self.filterSize = filterSize
         self.numFilters = numFilters
         self.filters = np.random.randn(numFilters, filterSize, filterSize) * np.sqrt(2 / (filterSize ** 2))
+        self.lr = lr
 
     def forward(self, image):
         self.image = image
@@ -75,7 +77,7 @@ class ConvolutionLayer:
         # convolution: (batch, outHeight, outWidth, numFilter)
         return convolution
     
-    def backward(self, dE_dY, lr):
+    def backward(self, dE_dY):
         batch, outHeight, outWidth, _ = dE_dY.shape
         filterSize = self.filterSize
         height = outHeight + filterSize - 1
@@ -86,7 +88,7 @@ class ConvolutionLayer:
         # dE_dY           -> (batch, outHeight, outWidth, numFilters, 1, 1)
         dE_dK = (self.stridedView[:, :, :, None, :, :] * dE_dY[:, :, :, :, None, None]).sum(axis=(0,1,2))
 
-        self.filters -= dE_dK * lr
+        self.filters -= dE_dK * self.lr
 
         # Reverse the height and width dimensions of filters
         filtersFlipped = self.filters[:, ::-1, ::-1]
@@ -108,10 +110,11 @@ class ConvolutionLayer:
 
 
 class DenseLayer:
-    def __init__(self, inputDim, outputDim):
+    def __init__(self, inputDim, outputDim, lr):
         self.weights = np.random.randn(outputDim, inputDim)  * np.sqrt(2 / (inputDim))
         # Add axis so bias broadcasts in the batch dimension
         self.bias = np.random.randn(1, outputDim)
+        self.lr = lr
     
     def forward(self, input):
         self.input = input
@@ -119,7 +122,7 @@ class DenseLayer:
         # Weight each input dimension by the corresponding weight dimension and add bias
         return input @ self.weights.T + self.bias
     
-    def backward(self, dE_dY, lr):
+    def backward(self, dE_dY):
         batch = dE_dY.shape[0]
 
         # Gradient of weight
@@ -131,14 +134,21 @@ class DenseLayer:
         # Gradient of bias
         dE_dB = np.sum(dE_dY, axis=0, keepdims=True) / batch
 
-        self.weights -= dE_dW * lr
-        self.bias -= dE_dB * lr
+        self.weights -= dE_dW * self.lr
+        self.bias -= dE_dB * self.lr
 
         return dE_dX
     
 
-
+class FlattenLayer:
+    def forward(self, images):
+        self.imageShape = images.shape
+        imageSize = np.prod(images.shape[1:])
+        return(images.reshape(images.shape[0], imageSize))
     
+    def backward(self, dE_dY):
+        return(dE_dY.reshape(*self.imageShape))
+
 
 
 
