@@ -33,61 +33,58 @@ class DigitGUI:
         self.last_x, self.last_y = event.x, event.y
 
     def preprocess(self, img):
-        # convert to grayscale
         img = img.convert("L")
-        
-        # invert so background is black
-        img = Image.eval(img, lambda x: 255 - x)
 
-        # convert to numPy
-        img = np.array(img)
+        # binarize
+        img = img.point(lambda x: 0 if x < 200 else 255)
+        arr = np.array(img)
 
-        # get bounding box of the drawn digit
-        coords = np.where(img < 200)     # find dark pixels
-        if coords[0].size == 0:
-            return np.zeros((1, 28, 28))  # empty canvas → return blank
-        
+        # find digit bbox
+        coords = np.where(arr < 200)
+        if len(coords[0]) == 0:
+            return np.zeros((1, 28, 28))
+
         ymin, ymax = coords[0].min(), coords[0].max()
         xmin, xmax = coords[1].min(), coords[1].max()
-        img = img[ymin:ymax, xmin:xmax]  # crop to digit
+        arr = arr[ymin:ymax, xmin:xmax]
 
-        # resize longest side to 20px (MNIST uses 20×20 digits padded to 28×28)
-        h, w = img.shape
+        h, w = arr.shape
+
+        # resize to 20
         if h > w:
             new_w = int(20 * w / h)
-            img = Image.fromarray(img).resize((new_w, 20))
+            arr = Image.fromarray(arr).resize((new_w, 20))
         else:
             new_h = int(20 * h / w)
-            img = Image.fromarray(img).resize((20, new_h))
+            arr = Image.fromarray(arr).resize((20, new_h))
 
-        img = np.array(img)
+        arr = np.array(arr)
 
-        # pad to 28×28
+        # pad to 28x28
+        h, w = arr.shape
         padded = np.zeros((28, 28))
-        x_offset = (28 - img.shape[0]) // 2
-        y_offset = (28 - img.shape[1]) // 2
-        padded[x_offset:x_offset+img.shape[0], y_offset:y_offset+img.shape[1]] = img
+        x_offset = (28 - h) // 2
+        y_offset = (28 - w) // 2
+        padded[x_offset:x_offset+h, y_offset:y_offset+w] = arr
 
-        # normalize
-        padded = padded.astype("float32") / 255.0
-
-        return padded.reshape(1, 28, 28)
-
+        return padded.astype("float32") / 255.0
+    
     def predict_digit(self):
         def predict(network, images):
             for layer in network:
                 images = layer.forward(images)
             return images
 
-        # Get canvas position & grab image
-        x = self.root.winfo_rootx() + self.canvas.winfo_x()
-        y = self.root.winfo_rooty() + self.canvas.winfo_y()
-        x2 = x + self.canvas.winfo_width()
-        y2 = y + self.canvas.winfo_height()
-        img = ImageGrab.grab().crop((x, y, x2, y2))
+        # Get canvas region
+        x1 = self.root.winfo_rootx() + self.canvas.winfo_x()
+        y1 = self.root.winfo_rooty() + self.canvas.winfo_y()
+        x2 = x1 + self.canvas.winfo_width()
+        y2 = y1 + self.canvas.winfo_height()
 
-        # Preprocess and predict
-        inp = self.preprocess(img)[:, :, : , None]
+        img = ImageGrab.grab().crop((x1, y1, x2, y2))
+
+        inp = self.preprocess(img).reshape(1, 28, 28, 1)
+
         pred = predict(self.model, inp).argmax()
 
         self.label.config(text=f"Prediction: {pred}")

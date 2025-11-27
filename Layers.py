@@ -82,8 +82,18 @@ class ConvolutionLayer:
         filterSize = self.filterSize
 
         batch, height, width, channels = image.shape
-        outHeight = height - filterSize + 1
-        outWidth = width - filterSize + 1
+
+        # Add padding
+        heightPad = (filterSize - 1) // 2
+        widthPad = (filterSize - 1) // 2
+        image = np.pad(
+            image,
+            pad_width = ((0, 0), (heightPad, heightPad), (widthPad, widthPad), (0, 0)),
+            mode = 'constant',
+            constant_values = 0
+        )
+        outHeight = height
+        outWidth = width
 
         bs, hs, ws, cs = image.strides
         # Get a representation of each patch of image of stride 1 to be multiplied with filter
@@ -104,8 +114,8 @@ class ConvolutionLayer:
     def backward(self, dE_dY):
         batch, outHeight, outWidth, _ = dE_dY.shape
         filterSize = self.filterSize
-        height = outHeight + filterSize - 1
-        width = outWidth + filterSize - 1
+        height = outHeight
+        width = outWidth
 
         # Compute gradient for filters
         # stridedView     -> (batch, outHeight, outWidth, 1, channels, filterSize, filterSize)
@@ -126,13 +136,16 @@ class ConvolutionLayer:
         dE_dColumns = dE_dColumns.transpose(0, 1, 2, 4, 5, 3)
         # dE_dColumn: (batch, outHeight, outWidth, filterSize, filterSize, channels)
         
-        dE_dX = np.zeros((batch, height, width, self.channels))
+        # Account for padding: filterSize - 1
+        dE_dX = np.zeros((batch, height + (filterSize - 1), width + (filterSize - 1), self.channels))
 
         # Update dE_dX by adding the gradients of each patch
         for y in range(filterSize):
             for x in range(filterSize):
                 dE_dX[:, y:y+outHeight, x:x+outWidth, :] += dE_dColumns[:, :, :, y, x, :]
 
+        padding = (filterSize - 1) // 2
+        dE_dX = dE_dX[:, padding:-padding, padding:-padding, :]
         return dE_dX
 
 
