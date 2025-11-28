@@ -2,8 +2,9 @@
 # Convolutional Neural Network with Pure Numpy Implementation
 <br>
 
-## Description
-A convolutional neural network with all layers implemented using only Numpy<br>
+## Description and Purpose
+__A convolutional neural network with all layers implemented using only Numpy__ <br>
+I wanted to develop a clearer understanding of how convolution layers process data, so I decided to implement each component of it using Numpy without built-in layers from libraries
 <br>
 
 ## Classifying MNIST and CIFAR-10 Datasets
@@ -47,4 +48,56 @@ Red line: final test error after 25 epochs<br>
 Network 3 achieves a test error of 1.16, which is equivalent to **60% accuracy** on CIFAR-10. This is actually a very good accuracy for a basic network like this without batch normalization or data augmentation.
 The change from grayscale numbers in MNIST to colored objects of CIFAR-10 made learning much more difficult, as seen in how the learning curve is much flatter than the previous classifications. 
 I planned to train a 4th network with even more filters and convolution layers to classify CIFAR-10, but it takes too long to run because the Numpy implementation does not support GPU acceleration. 
-However, I am sure the 4th network has the potential to reach 80% accuracy with additional improvements, such as batch normalization layers.
+However, I am sure the 4th network has the potential to reach 80% accuracy with additional improvements, such as batch normalization layers.<br>
+
+<br>
+
+## Try For Yourself
+All of the 3 networks described above and the functions used to pre-process data can be found in _main.py_. <br>
+Use the function _classifyMNIST_ to classify MNIST and _classifyCIFAR10_ to classify CIFAR-10. The input to both functions is the network used for the classification, which should be a list of initialized layers. <br>
+You can use the 3 networks I built or make one yourself. The layers are imported from _Layers.py_ and _Activations.py_, the test and train functions are imported from _CNN.py_. <br>
+**The libraries Numpy and tensorflow.keras (for importing data) are required to be installed.** <br>
+
+### Usage
+__ConvolutionLayer(filterSize, numFilters, channels, lr, beta)__ <br>
+__filterSize__: the side length of the filter/kernel, which has square dimensions and a fixed stride of 1. Input is pre-padded so no change in dimensions <br>
+__numFilters__: the number of filters in this convolution layer <br>
+__channels__: the number of channels the input to the layer has. If this is the first convolution layer, _channels_ is the channels of sample data (1 from MNIST and 3 for CIFAR-10); otherwise, _channels_ is the number of filters in the previous convolution layer <br>
+__lr__: the learning rate of the layer (around 0.05 - 0.1 for fast learning) <br>
+__beta__: the momentum of the layer (around 0.9, steepens the learning curve) <br>
+<br>
+
+__MaxPoolingLayer(filterSize)__ <br>
+__filterSize__: the side length of a square filter that will apply the max pooling with _filterSize_ stride. Padding will be applied if input dimensions are not integer multiples of _filterSize_ <br>
+<br>
+
+__DenseLayer(inputDim, outputDim, lr, beta)__ <br>
+__inputDim__: the size of each image after the flatten layer <br>
+__outputDim__: the number of neurons in this fully connected layer. The last dense layer should have this be 10 <br>
+__lr__: the learning rate of the layer (around 0.05 - 0.1 for fast learning) <br>
+__beta__: the momentum of the layer (around 0.9, steepens the learning curve) <br>
+<br>
+
+__Designing a Network__ <br>
+First, determine the dimensions of the data set: (28 x 28 x 1) for MNIST and (32 x 32 x 3) for CIFAR-10. <br>
+The first 2 dimensions are the height and width dimensions, and the last dimension is the channel dimension. <br>
+<br>
+Layers are best to take these general orders: <br>
+- Convolution layer needs to be upstream of any dense layer 
+- Place ReLu after each convolution layer and dense layer
+- Place max pooling after some of ReLu that follow convolution layer
+- Place flatten before the first dense layer
+- Place softmax after the last dense layer as the last layer 
+
+Track the size of height, width, and channel dimensions through each layer using these rules: <br>
+* Passing through a convolution layer does not change height and width dimensions because padding is added, but it does change the channel dimension to _numFilters_ of the layer.
+* Passing through a max pooling layer divides the height and width dimensions by the _filterSize_ of the layer; division rounds up because padding is added. 
+* Flatten layer reduces height, width, and channel dimensions to a single dimension with size equal to the product of the size of height, width, and channel of the input. 
+
+Finalize parameters of layers: <br>
+- The _inputDim_ parameter of the dense layer that follows flatten is the size of (height x width x channel) of the output of layer before flatten 
+- The _outputDim_ parameter of the last dense layer is 10 to correspond to the 10 classes 
+
+
+
+
