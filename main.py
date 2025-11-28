@@ -3,7 +3,6 @@ from Activations import ReLu, SoftMax
 from CNN import trainCNN, testCNN
 import numpy as np
 from tensorflow.keras.datasets import mnist
-from TestingTools import DigitGUI
 
 def cross_entropy(true, pred):
     if true.ndim == 2:          # one-hot
@@ -20,7 +19,7 @@ def cross_entropy_prime(true, pred):
 
 # Networks for MNIST:
 
-# network1 reach 95.78% test accuracy after 25 epochs
+# network1 reach 95.78% test accuracy on MNIST after 25 epochs
 network1 = [                              # 28 x 28 x 1
     ConvolutionLayer(3, 4, 1, 0.1, 0.9),  # 28 x 28 x 4
     ReLu(),
@@ -32,7 +31,7 @@ network1 = [                              # 28 x 28 x 1
     SoftMax()
 ]
 
-# network2 reach 97.3% test accuracy after 25 epochs
+# network2 reach 97.7% test accuracy on MNIST after 25 epochs
 network2 = [                               # 28 x 28 x 1
     ConvolutionLayer(3, 16, 1, 0.1, 0.9),  # 28 x 28 x 16
     ReLu(),
@@ -62,26 +61,45 @@ def classifyMNIST(network):
 
     testCNN(trainedNetwork, cross_entropy, xTest, yTest)
 
-    gui = DigitGUI(trainedNetwork)
-    gui.run()
 
 # Networks for CIFAR-10
 
-network3 = [                               # 32 x 32 x 3
-    ConvolutionLayer(3, 16, 3, 0.1, 0.9),  # 32 x 32 x 16
+# network3 reach 60.04% test accuracy on CIFAR-10 after 25 epochs
+network3 = [                                  # 32 x 32 x 3
+    ConvolutionLayer(3, 8, 3, 0.1, 0.9),      # 32 x 32 x 8
     ReLu(),
-    MaxPoolingLayer(2),                    # 16 x 16 x 16
-    ConvolutionLayer(3, 32, 16, 0.1, 0.9), # 16 x 16 x 32
+    MaxPoolingLayer(2),                       # 16 x 16 x 8
+    ConvolutionLayer(3, 16, 8, 0.1, 0.9),     # 16 x 16 x 16
     ReLu(),
-    MaxPoolingLayer(2),                    # 8 x 8 x 32
-    ConvolutionLayer(3, 16, 32, 0.1, 0.9), # 8 x 8 x 16
+    ConvolutionLayer(3, 32, 16, 0.1, 0.9),    # 16 x 16 x 32
     ReLu(),
-    FlattenLayer(),
-    DenseLayer(1024, 250 , 0.05, 0.9),
-    ReLu(),
-    DenseLayer(250, 10, 0.05, 0.9),
-    SoftMax()
+    MaxPoolingLayer(2),                       # 8 x 8 x 32
 
+    FlattenLayer(),              
+    DenseLayer(2048, 256, 0.1, 0.9),
+    ReLu(),
+    DenseLayer(256, 10, 0.1, 0.9),
+    SoftMax()
+]
+
+network4 = [                                  # 32 x 32 x 3
+    ConvolutionLayer(3, 32, 3, 0.1, 0.9),     # 32 x 32 x 32
+    ReLu(),
+    ConvolutionLayer(3, 32, 32, 0.1, 0.9),    # 32 x 32 x 32
+    ReLu(),
+    MaxPoolingLayer(2),                       # 16 x 16 x 32
+
+    ConvolutionLayer(3, 64, 32, 0.1, 0.9),    # 16 x 16 x 64
+    ReLu(),
+    ConvolutionLayer(3, 64, 64, 0.1, 0.9),    # 16 x 16 x 64
+    ReLu(),
+    MaxPoolingLayer(2),                       # 8 x 8 x 64
+
+    FlattenLayer(),                           # 4096 units
+    DenseLayer(4096, 256, 0.05, 0.9),
+    ReLu(),
+    DenseLayer(256, 10, 0.05, 0.9),
+    SoftMax()
 ]
 
 def classifyCIFAR10(network):
@@ -94,7 +112,7 @@ def classifyCIFAR10(network):
     xTrain = xTrain.astype("float32") / 255.0
     xTest = xTest.astype("float32") / 255.0
 
-    trainedNetwork = trainCNN(network, cross_entropy, cross_entropy_prime, xTrain, yTrain_onehot, 20, 40)
+    trainedNetwork = trainCNN(network, cross_entropy, cross_entropy_prime, xTrain, yTrain_onehot, 25, 40)
 
     testCNN(trainedNetwork, cross_entropy, xTest, yTest_onehot)
 

@@ -42,6 +42,8 @@ def testCNN(network, loss, xTest, yTest):
     error = loss(yTest, prediction)
 
     predictions = prediction.argmax(axis=1)
+    if yTest.ndim == 2:          # one-hot
+        yTest = np.argmax(yTest, axis=1)
     accuracy = np.mean(predictions == yTest)
 
     print(f"Testing error is {np.mean(error)}, with accuracy of {accuracy}")
