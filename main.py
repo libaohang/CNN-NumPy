@@ -3,6 +3,7 @@ from Activations import ReLu, SoftMax
 from CNN import trainCNN, testCNN
 import numpy as np
 from tensorflow.keras.datasets import mnist
+from tensorflow.keras.datasets import cifar10
 
 def cross_entropy(true, pred):
     if true.ndim == 2:          # one-hot
@@ -19,7 +20,7 @@ def cross_entropy_prime(true, pred):
 
 # Networks for MNIST:
 
-# network1 reach 95.78% test accuracy on MNIST after 25 epochs
+# network1 reach 96.05% test accuracy on MNIST after 25 epochs
 network1 = [                              # 28 x 28 x 1
     ConvolutionLayer(3, 4, 1, 0.1, 0.9),  # 28 x 28 x 4
     ReLu(),
@@ -31,7 +32,7 @@ network1 = [                              # 28 x 28 x 1
     SoftMax()
 ]
 
-# network2 reach 97.7% test accuracy on MNIST after 25 epochs
+# network2 reach 97.78% test accuracy on MNIST after 30 epochs
 network2 = [                               # 28 x 28 x 1
     ConvolutionLayer(3, 16, 1, 0.1, 0.9),  # 28 x 28 x 16
     ReLu(),
@@ -103,8 +104,6 @@ network4 = [                                  # 32 x 32 x 3
 ]
 
 def classifyCIFAR10(network):
-    from tensorflow.keras.datasets import cifar10
-
     (xTrain, yTrain), (xTest, yTest) = cifar10.load_data()
     yTrain_onehot = np.eye(10)[yTrain.reshape(-1)]
     yTest_onehot  = np.eye(10)[yTest.reshape(-1)]
@@ -118,5 +117,5 @@ def classifyCIFAR10(network):
 
 
 if __name__ == '__main__':
-    #classifyMNIST(network2)
-    classifyCIFAR10(network3)
+    classifyMNIST(network1)
+    #classifyCIFAR10(network3)
