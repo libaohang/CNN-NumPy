@@ -11,7 +11,7 @@ I wanted to develop a clearer understanding of how convolution layers process da
 Using the layers I wrote in Numpy, I built 3 different networks of increasing complexity. I used the first 2 networks to classify MNIST, and the 3rd network to classify CIFAR-10. <br>
 For context, MNIST is a dataset of grayscale images of handwritten numbers 0 to 9, and CIFAR is a dataset of colored images of 10 types of objects, such as birds, planes, trucks, etc. <br>
 The details on each network and their performance on the datasets are described below: <br>
-Note: errors are calculated using cross-entropy loss. <br>
+Note: **the labels of the x and y axes should be swapped**; errors are calculated using cross-entropy loss. <br>
 
 ### Network 1
 Network 1 has a total of 1 convolution layer and 4 filters: Convo(4) -> ReLu -> MaxPool -> Flatten -> Dense -> ReLu -> Dense -> SoftMax<br>
