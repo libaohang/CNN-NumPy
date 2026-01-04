@@ -15,11 +15,11 @@ Note: errors are calculated using cross-entropy loss. <br>
 
 ### Network 1
 Network 1 has a total of 1 convolution layer and 4 filters: Convo(4) -> ReLu -> MaxPool -> Flatten -> Dense -> ReLu -> Dense -> SoftMax<br>
-**Error over Epochs Trained for network 1 on MNIST:**
+**Training Error over Epochs Trained for network 1 on MNIST:**
 <img width="1291" height="795" alt="network 1 fixed" src="https://github.com/user-attachments/assets/dea46ae8-8cda-4138-9b67-8724f5659261" />
 
 __Key:__ <br>
-Green line: error on each epoch<br>
+Green line: training error on each epoch<br>
 Red line: final test error after 25 epochs<br>
 <br>
 Network 1 achieves a test error of 0.14, which is equivalent to **96% accuracy** on MNIST. This is a good result for a CNN with 1 convolution layer and 4 filters. <br>
@@ -28,11 +28,11 @@ Network 1 achieves a test error of 0.14, which is equivalent to **96% accuracy**
 
 ### Network 2
 Network 2 has a total of 2 convolution layers and 32 filters: Convo(16) -> ReLu -> MaxPool -> Convo(16) -> ReLu -> MaxPool -> Flatten -> Dense -> ReLu -> Dense -> SoftMax<br>
-**Error over Epochs Trained for network 2 on MNIST:**
+**Training Error over Epochs Trained for network 2 on MNIST:**
 <img width="1296" height="815" alt="network 2 fixed" src="https://github.com/user-attachments/assets/b91fbf94-c275-49a0-aa31-f2f868370c21" />
 
 __Key:__ <br>
-Green line: error on each epoch<br>
+Green line: training error on each epoch<br>
 Red line: final test error after 30 epochs<br>
 <br>
 Network 2 achieves a test error of 0.07, which is equivalent to **97.8% accuracy** on MNIST. The learning curve is noticeably steeper with 2 convolution layers and more filters. With even more convolution layers, I would be able to reach 99% or more on MNIST, but I decided to move on to classifying CIFAR-10. <br>
@@ -41,11 +41,11 @@ Network 2 achieves a test error of 0.07, which is equivalent to **97.8% accuracy
 
 ### Network 3
 Network 3 has a total of 3 convolution layers and 56 filters: Convo(8) -> ReLu -> MaxPool -> Convo(16) -> ReLu -> Convo(32) -> ReLu -> MaxPool -> Flatten -> Dense -> ReLu -> Dense -> SoftMax<br>
-**Error over Epochs Trained for network 3 on CIFAR-10:**
+**Training Error over Epochs Trained for network 3 on CIFAR-10:**
 <img width="1130" height="802" alt="network 3 fixed" src="https://github.com/user-attachments/assets/8c970ddb-7f7d-4537-a0f1-03caf96be92b" />
 
 __Key:__ <br>
-Green line: error on each epoch<br>
+Green line: training error on each epoch<br>
 Red line: final test error after 25 epochs<br>
 <br>
 Network 3 achieves a test error of 1.16, which is equivalent to **60% accuracy** on CIFAR-10. This is actually a very good accuracy for a basic network like this without batch normalization or data augmentation.
